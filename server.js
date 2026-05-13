@@ -69,14 +69,14 @@ app.post('/webhook', async (req, res) => {
                 userState[from] = { started: true };
 
                 reply =
-`¡Hola! Gracias por comunicarte con el Club Jerónimus 🚴
+`👋🏻 ¡Hola! Gracias por comunicarte con el *Club Jerónimus* 🚴🏻
 Soy Natalia y estoy aquí para ayudarte.
 
 Por favor, selecciona una opción:
 
 🔹 1. Horarios y ubicación
 🔹 2. Precios y planes
-🔹 3. Inscripción y primera clase
+🔹 3. Información sobre categorias
 🔹 4. Beneficios del club
 🔹 5. Hablar con Natalia`;
 
@@ -86,20 +86,23 @@ Por favor, selecciona una opción:
 `📍 Horarios y ubicación
 
 Estamos ubicados en:
-PARQUE EL LAGO DE LA PRADERA, DOSQUEBRADAS
+*PARQUE LAGO DE LA PRADERA, DOSQUEBRADAS*
 
 Horarios:
+
 MINI RIDERS:
-Miércoles y viernes: 4:30 PM - 5:45 PM
+Miércoles: 4:30 PM - 5:45 PM
 Sábados: 10:30 AM - 11:45 AM
 
 INICIACIÓN:
-Lunes, martes y jueves: 4:30 PM - 6:00 PM
+Lunes: 4:30 PM - 6:00 PM
 Viernes: 3:00 PM - 4:30 PM
 Sábados: 9:00 AM - 10:30 AM y 3:30 PM - 5:00 PM
 
 AVANZADOS:
 Martes, jueves y viernes: 4:00 PM - 6:00 PM
+Sábados: 8:00 AM - 9:30 AM
+Salidas Programadas: sábados 7:00 AM
 `;
 
             } else if (text === '2') {
@@ -112,25 +115,32 @@ Tenemos varios planes disponibles.
 Inscripción: $70.000 (pago único)
 Póliza de seguro anual: $60.000
 
-Entrenamiento 1 vez por semana: $95.000/mes
-Entrenamiento 2 veces por semana: $135.000/mes
-Entrenamiento 3 veces por semana: $160.000/mes 
+‣ Entrenamiento 1 vez por semana: $100.000/mes
+‣ Entrenamiento 2 veces por semana: $140.000/mes
+‣ Entrenamiento 3 veces por semana: $160.000/mes
 
 GRUPO DE AVANZADOS:
-Entrenamiento 4 veces por semana: $160.000/mes
+‣ Entrenamiento 4 veces por semana: $180.000/mes
 
-CLASE INDIVIDUAL: $27.000 por clase`;
+CLASE INDIVIDUAL: $30.000 por sesión
+
+✨ Todos los pagos realizados al club son soportados con facturación electrónica.`;
 
             } else if (text === '3') {
 
                 reply =
-`🚴 Primera clase GRATIS
+`🚵🏻 Nuestras Categorías
 
-Para registrarte necesitamos:
+*MINI RIDERS:* 2 a 5 años
+Enfocado en la diversión y el desarrollo de habilidades básicas.
+Bicicleta sin pedales.
 
-✅ Nombre
-✅ Celular
-✅ Horario preferido`;
+*INICIACIÓN:* 6 a 10 años
+Ideal para niños que quieren aprender y mejorar sus habilidades.
+Bicicleta con pedales.
+
+*AVANZADOS:* 10 años en adelante
+Para niños que buscan un entrenamiento más intenso y competitivo.`;
 
             } else if (text === '4') {
 
@@ -145,7 +155,7 @@ Para registrarte necesitamos:
             } else if (text === '5') {
 
                 reply =
-`🙋‍♀️ Natalia se comunicará contigo pronto.
+`🙋🏻‍♀️ Natalia se comunicará contigo pronto.
 
 Déjanos tu nombre y consulta.`;
 
