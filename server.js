@@ -33,6 +33,76 @@ app.get('/webhook', (req, res) => {
 
 
 // =====================================
+// FUNCIÓN: ENVIAR MENSAJE DE TEXTO
+// =====================================
+
+async function sendText(to, body) {
+    await axios.post(
+        `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`,
+        {
+            messaging_product: 'whatsapp',
+            to,
+            type: 'text',
+            text: { body }
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+}
+
+
+// =====================================
+// FUNCIÓN: ENVIAR MENÚ CON BOTONES
+// =====================================
+
+async function sendMenu(to) {
+    await axios.post(
+        `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`,
+        {
+            messaging_product: 'whatsapp',
+            to,
+            type: 'interactive',
+            interactive: {
+                type: 'list',
+                body: {
+                    text:
+`👋🏻 ¡Hola! Gracias por comunicarte con el *Club Jerónimus* 🚴🏻
+Soy Natalia y estoy aquí para ayudarte.
+
+Por favor, selecciona una opción:`
+                },
+                action: {
+                    button: '📋 Ver opciones',
+                    sections: [
+                        {
+                            title: 'Menú principal',
+                            rows: [
+                                { id: '1', title: '📍 Horarios y ubicación' },
+                                { id: '2', title: '💳 Precios y planes' },
+                                { id: '3', title: '🚵🏻 Categorías' },
+                                { id: '4', title: '⭐ Beneficios del club' },
+                                { id: '5', title: '🙋🏻‍♀️ Hablar con Natalia' }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+}
+
+
+// =====================================
 // RECIBIR MENSAJES
 // =====================================
 
@@ -42,8 +112,6 @@ app.post('/webhook', async (req, res) => {
 
         const body = req.body;
 
-        console.log(JSON.stringify(body, null, 2));
-
         const message =
             body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
@@ -52,37 +120,26 @@ app.post('/webhook', async (req, res) => {
             const from = message.from;
             const isFirstMessage = !userState[from];
 
-            const text =
-                message.text?.body?.trim().toLowerCase();
+            // Leer texto normal o botón seleccionado
+            const text = message.text?.body?.trim().toLowerCase();
+            const buttonId = message.interactive?.list_reply?.id;
 
-            console.log('Mensaje:', text);
+            console.log('Mensaje:', text || buttonId);
 
 
             // =====================================
             // LÓGICA DEL CHATBOT
             // =====================================
 
-            let reply = '';
-
-            if (isFirstMessage) {
+            // Mostrar menú si es el primer mensaje o escribe hola/menu
+            if (isFirstMessage || text === 'hola' || text === 'menu' || text === 'menú') {
 
                 userState[from] = { started: true };
+                await sendMenu(from);
 
-                reply =
-`👋🏻 ¡Hola! Gracias por comunicarte con el *Club Jerónimus* 🚴🏻
-Soy Natalia y estoy aquí para ayudarte.
+            } else if (buttonId === '1') {
 
-Por favor, selecciona una opción:
-
-🔹 1. Horarios y ubicación
-🔹 2. Precios y planes
-🔹 3. Información sobre categorias
-🔹 4. Beneficios del club
-🔹 5. Hablar con Natalia`;
-
-            } else if (text === '1') {
-
-                reply =
+                await sendText(from,
 `📍 Horarios y ubicación
 
 Estamos ubicados en:
@@ -103,14 +160,14 @@ AVANZADOS:
 Martes, jueves y viernes: 4:00 PM - 6:00 PM
 Sábados: 8:00 AM - 9:30 AM
 Salidas Programadas: sábados 7:00 AM
-`;
 
-            } else if (text === '2') {
+Escribe *menú* para volver a las opciones.`
+                );
 
-                reply =
+            } else if (buttonId === '2') {
+
+                await sendText(from,
 `💳 Precios y planes
-
-Tenemos varios planes disponibles.
 
 Inscripción: $70.000 (pago único)
 Póliza de seguro anual: $60.000
@@ -124,11 +181,14 @@ GRUPO DE AVANZADOS:
 
 CLASE INDIVIDUAL: $30.000 por sesión
 
-✨ Todos los pagos realizados al club son soportados con facturación electrónica.`;
+✨ Todos los pagos realizados al club son soportados con facturación electrónica.
 
-            } else if (text === '3') {
+Escribe *menú* para volver a las opciones.`
+                );
 
-                reply =
+            } else if (buttonId === '3') {
+
+                await sendText(from,
 `🚵🏻 Nuestras Categorías
 
 *MINI RIDERS:* 2 a 5 años
@@ -140,54 +200,56 @@ Ideal para niños que quieren aprender y mejorar sus habilidades.
 Bicicleta con pedales.
 
 *AVANZADOS:* 10 años en adelante
-Para niños que buscan un entrenamiento más intenso y competitivo.`;
+Para niños que buscan un entrenamiento más intenso y competitivo.
 
-            } else if (text === '4') {
+Escribe *menú* para volver a las opciones.`
+                );
 
-                reply =
+            } else if (buttonId === '4') {
+
+                await sendText(from,
 `⭐ Beneficios del club
 
 ✅ Comunidad exclusiva
-✅ Entrenadores
-✅ Eventos
-✅ Seguimiento`;
+✅ Entrenadores certificados
+✅ Eventos y competencias
+✅ Seguimiento personalizado
 
-            } else if (text === '5') {
+Escribe *menú* para volver a las opciones.`
+                );
 
-                reply =
-`🙋🏻‍♀️ Natalia se comunicará contigo pronto.
+            } else if (buttonId === '5') {
 
-Déjanos tu nombre y consulta.`;
+                userState[from].waitingForInfo = true;
+
+                await sendText(from,
+`🙋🏻‍♀️ Con gusto te comunicamos con Natalia.
+
+Por favor escríbenos tu *nombre* y tu *consulta* en un solo mensaje y ella te contactará pronto.`
+                );
+
+            } else if (userState[from]?.waitingForInfo) {
+
+                // Guarda el mensaje del usuario para Natalia
+                userState[from].waitingForInfo = false;
+                userState[from].consulta = text;
+
+                await sendText(from,
+`✅ Listo, hemos recibido tu mensaje.
+
+Natalia se comunicará contigo pronto. 😊
+
+Escribe *menú* si necesitas algo más.`
+                );
+
+                // Notificar a Natalia (descomenta y pon el número de Natalia)
+                // await sendText('57NUMERODENATALIA', `Nueva consulta de ${from}:\n${text}`);
 
             } else {
 
-                reply =
-`😅 No entendí tu mensaje.
-Elige una opción del menú o escribe "5" para hablar con Natalia.`;
+                await sendMenu(from);
 
             }
-
-
-            // =====================================
-            // RESPUESTA AUTOMÁTICA
-            // =====================================
-
-            await axios.post(
-                `https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`,
-                {
-                    messaging_product: 'whatsapp',
-                    to: from,
-                    text: {
-                        body: reply
-                    }
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${TOKEN}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
 
         }
 
